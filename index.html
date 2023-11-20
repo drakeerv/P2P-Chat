@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html data-theme="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Video Call PeerJS</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"
+        integrity="sha512-y23HV23IWVEWlGpIez8Kvr87ZT16V9gICf5dfqu5rjxs7ip66pcIf87/uFbxn9tStGCgohZeIktIAHg9fjubsw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+        integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/picocss/1.5.2/pico.min.css"
+        integrity="sha512-3gFq2IXMVlAQaUyahzhjDRivv0yqyXTb7xiy6ivTaG5Uz4hKI54uYxpQefdomgDVQ11eJVUbXG0YdPMDISiGgg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu" />
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="icons/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="icons/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="icons/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png" />
+    <link rel="icon" href="favicon.ico" />
+    <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png" />
+
+    <meta name="title" content="Video Call PeerJS" />
+    <meta name="description" content="This easy-to-use app allows you to video call and chat with your friends." />
+    <meta name="keywords" content="p2p, peer, video, audio, call, easy" />
+    <meta name="robots" content="index, follow" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="English" />
+    <meta name="author" content="drakeerv" />
+    <meta name="rating" content="general" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://video-call.drakefletcher2.repl.co/" />
+    <meta property="og:title" content="Video Call PeerJS" />
+    <meta property="og:description"
+        content="This easy-to-use app allows you to video call and chat with your friends." />
+    <meta property="og:image" content="icons/android-icon-192x192.png" />
+
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://video-call.drakefletcher2.repl.co/" />
+    <meta property="twitter:title" content="Video Call PeerJS" />
+    <meta property="twitter:description"
+        content="This easy-to-use app allows you to video call and chat with your friends." />
+    <meta property="twitter:image" content="icons/android-icon-192x192.png" />
+
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <canvas id="screenshotCanvas"></canvas>
+    <header>
+        <hgroup class="container">
+            <h1 id="myPeerId" aria-busy="true">Generating</h2>
+                <h3>Your ID</h3>
+        </hgroup>
+    </header>
+    <main>
+        <section class="container">
+            <h2>Connection</h2>
+            <p>Manage your connection to other peers.</p>
+            <div class="grid">
+                <form id="peerForm" autocomplete="off" class="grid">
+                    <input type="text" maxlength="6" minlength="6" id="otherPeerId" name="otherPeerId"
+                        placeholder="Other Peer ID" required>
+                    <input type="submit" id="peerSubmit" value="Connect" />
+                </form>
+                <button id="peerDisconnect" disabled>Disconnect</button>
+            </div>
+        </section>
+        <article id="streams">
+            <video id="peerVideo" style="display:none;" playsinline autoplay></video>
+            <video id="myVideo" style="display:none;" playsinline autoplay muted></video>
+        </article>
+        <section class="container">
+            <h2>Controls</h2>
+            <p>Control the stream.</p>
+            <div class="grid">
+                <div>
+                    <input type="checkbox" id="deafen" name="deafen" />
+                    <label for="deafen">Deafen</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="mute" name="mute" />
+                    <label for="mute">Mute</label>
+                </div>
+                <div>
+                    <label for="volume">Volume</label>
+                    <input type="range" min="0" max="100" value="100" name="volume" id="volume" />
+                </div>
+            </div>
+        </section>
+        <section class="container">
+            <h2>Chat</h2>
+            <p>Text chat with the other peer.</p>
+            <ul id="peerChatMessages"></ul>
+            <form id="peerChatForm" class="grid" autocomplete="off">
+                <input type="text" maxlength="200" id="peerChatMessage" name="peerChatMessage" placeholder="Message"
+                    disabled>
+                <input type="submit" id="peerChatSubmit" value="Send" disabled />
+            </form>
+        </section>
+        <section class="container">
+            <h2>Log</h2>
+            <p>View the status of the app</p>
+            <code id="peerLog">Loaded Page</code>
+        </section>
+    </main>
+    <footer class="container-fluid">
+        Made by drakeerv
+    </footer>
+    <dialog id="shareDialog">
+        <article>
+            <h3>Share Code</h3>
+            <div id="shareQr"></div>
+            <div style="text-align:center;">
+                <a id="shareUrl">Link</a>
+            </div>
+            <footer>
+                <button class="primary" id="shareClose">Done</button>
+            </footer>
+        </article>
+    </dialog>
+</body>
+
+</html>
